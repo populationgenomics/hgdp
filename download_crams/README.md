@@ -12,7 +12,7 @@ gcloud builds submit --tag=australia-southeast1-docker.pkg.dev/cpg-common/images
 Then run the Hail Batch pipeline that uses the image:
 
 ```sh
-analysis-runner --dataset hgdp --access-level test --output-dir cram/ebi --description "Copy HGDP CRAMs from EBI FTP" main.py --index_begin=0 --index_end=5
+analysis-runner --dataset hgdp --access-level test --output-dir cram/ebi --description "Copy HGDP CRAMs from EBI FTP" main.py --index_begin=0 --index_end=8
 ```
 
 In order to restrict the bandwidth requirements on the FTP server, the `index_begin` and `index_end` parameters can be used to only download a particular batch of samples at a time.
