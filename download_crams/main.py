@@ -40,8 +40,8 @@ def main():
             # Unfortunately, piping to stdout doesn't seem to work with ascp, so we
             # write locally first and then delocalize using Hail Batch.
             job.command(
-                f'~/.aspera/connect/bin/ascp '
-                f'-i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh'
+                f'/home/aspera/.aspera/connect/bin/ascp '
+                f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh'
                 f'-Tr -Q -l 100M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile}'
             )
