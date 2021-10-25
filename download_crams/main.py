@@ -8,7 +8,6 @@ import os
 import hailtop.batch as hb
 from analysis_runner import output_path
 
-GCLOUD_AUTH = 'gcloud -q auth activate-service-account --key-file=/gsa-key/key.json'
 DOCKER_IMAGE = 'australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1'
 ACCESS_LEVEL = os.getenv('ACCESS_LEVEL')
 
@@ -36,7 +35,6 @@ def main():
 
             job = batch.new_job(name=filename)
             job.image(DOCKER_IMAGE)
-            job.command(GCLOUD_AUTH)
             # Unfortunately, piping to stdout doesn't seem to work with ascp, so we
             # write locally first and then delocalize using Hail Batch.
             job.command(
