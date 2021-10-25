@@ -15,8 +15,12 @@ ACCESS_LEVEL = os.getenv('ACCESS_LEVEL')
 
 @click.command()
 # The range [index_begin, index_end) can be used to download a batch of samples.
-@click.option('--index_begin', help='Inclusive first sample index', required=True)
-@click.option('--index_end', help='Exclusive last sample index ', required=True)
+@click.option(
+    '--index_begin', help='Inclusive first sample index', required=True, type=int
+)
+@click.option(
+    '--index_end', help='Exclusive last sample index ', required=True, type=int
+)
 def main(index_begin: int, index_end: int) -> None:
     """Main entry point."""
     service_backend = hb.ServiceBackend(
