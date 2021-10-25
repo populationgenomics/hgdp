@@ -63,6 +63,8 @@ def main(index_begin: int, index_end: int) -> None:
             job.memory('standard')  # lowmem leads to OOMs.
             job.storage('50Gi')
 
+            jobs.append(job)
+
     # The FTP server stops transfers if there are more than 4 concurrent connections, so
     # add artifical sequencing of jobs.
     for index in range(index_begin + 4, index_end):
