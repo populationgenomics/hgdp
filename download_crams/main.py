@@ -5,6 +5,7 @@
 import csv
 import gzip
 import os
+import click
 import hailtop.batch as hb
 from analysis_runner import output_path
 
@@ -12,7 +13,11 @@ DOCKER_IMAGE = 'australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1'
 ACCESS_LEVEL = os.getenv('ACCESS_LEVEL')
 
 
-def main():
+@click.command()
+# The range [index_begin, index_end) can be used to download a batch of samples.
+@click.option('--index_begin', help='Inclusive first sample index', required=True)
+@click.option('--index_end', help='Exclusive last sample index ', required=True)
+def main(index_begin: int, index_end: int) -> None:
     """Main entry point."""
     service_backend = hb.ServiceBackend(
         billing_project=os.getenv('HAIL_BILLING_PROJECT'),
@@ -23,10 +28,15 @@ def main():
 
     with gzip.open('hgdp_sample_metadata.tsv.gz', mode='rt') as metadata_file:
         reader = csv.DictReader(metadata_file, delimiter='\t')
-        file_count = 0
+        sample_index = 0
         for row in reader:
             url = row['url']
             if not url.endswith('.cram'):
+                continue
+
+            included = index_begin <= sample_index < index_end
+            sample_index += 1
+            if not included:
                 continue
 
             path_components = url.split('/')
@@ -48,12 +58,8 @@ def main():
             job.memory('standard')  # lowmem leads to OOMs.
             job.storage('50Gi')
 
-            file_count += 1
-            if file_count >= 5 and ACCESS_LEVEL == 'test':
-                break  # Only copy a subset of CRAMs for 'test'.
-
     batch.run(wait=False)
 
 
 if __name__ == '__main__':
-    main()
+    main()  # pylint: disable=no-value-for-parameter
