@@ -30,6 +30,7 @@ def main(index_begin: int, index_end: int) -> None:
 
     batch = hb.Batch(name='HGDP CRAMs download', backend=service_backend)
 
+    jobs = []
     with gzip.open('hgdp_sample_metadata.tsv.gz', mode='rt') as metadata_file:
         reader = csv.DictReader(metadata_file, delimiter='\t')
         sample_index = 0
@@ -61,6 +62,11 @@ def main(index_begin: int, index_end: int) -> None:
             job.cpu(0.25)  # Network bandwidth is the bottleneck, not CPU.
             job.memory('standard')  # lowmem leads to OOMs.
             job.storage('50Gi')
+
+    # The FTP server stops transfers if there are more than 4 concurrent connections, so
+    # add artifical sequencing of jobs.
+    for index in range(index_begin + 4, index_end):
+        jobs[index].depends_on(jobs[index - 4])
 
     batch.run(wait=False)
 
