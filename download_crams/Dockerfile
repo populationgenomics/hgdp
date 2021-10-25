@@ -1,6 +1,4 @@
-FROM debian:bullseye-slim
-
-RUN apt update && apt install -y curl
+FROM google/cloud-sdk:361.0.0-slim
 
 # Aspera doesn't install for the root user.
 RUN useradd -m aspera

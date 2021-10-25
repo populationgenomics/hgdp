@@ -10,7 +10,7 @@ import hailtop.batch as hb
 from analysis_runner import output_path
 
 DOCKER_IMAGE = 'australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1'
-ACCESS_LEVEL = os.getenv('ACCESS_LEVEL')
+GCLOUD_AUTH = 'gcloud -q auth activate-service-account --key-file=/gsa-key/key.json'
 
 
 @click.command()
@@ -50,15 +50,21 @@ def main(index_begin: int, index_end: int) -> None:
 
             job = batch.new_job(name=filename)
             job.image(DOCKER_IMAGE)
+            job.command(GCLOUD_AUTH)
             # Unfortunately, piping to stdout doesn't seem to work with ascp, so we
-            # write locally first and then delocalize using Hail Batch.
+            # write locally first and then copy the file. We check the destination
+            # first, to make sure we're not doing redundant work. That's why we can't
+            # use Hail Batch's built-in file delocalization.
+            output = output_path(path_components[-1])
             job.command(
+                f'if gsutil stat {output}; then '
+                f'echo {output} already exists; else '
                 f'/home/aspera/.aspera/connect/bin/ascp '
                 f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh '
                 f'-Tr -Q -l 100M -P33001 -L- '
-                f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile}'
+                f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile} && '
+                f'gsutil cp {job.ofile} {output}; fi'
             )
-            batch.write_output(job.ofile, output_path(path_components[-1]))
             job.cpu(0.25)  # Network bandwidth is the bottleneck, not CPU.
             job.memory('standard')  # lowmem leads to OOMs.
             job.storage('50Gi')
