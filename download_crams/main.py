@@ -21,7 +21,7 @@ def main():
 
     batch = hb.Batch(name='HGDP CRAMs download', backend=service_backend)
 
-    with gzip.open('hgdp_sample_metadata.tsv.gz') as metadata_file:
+    with gzip.open('hgdp_sample_metadata.tsv.gz', mode='rt') as metadata_file:
         reader = csv.DictReader(metadata_file, delimiter='\t')
         file_count = 0
         for row in reader:
