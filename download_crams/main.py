@@ -41,7 +41,7 @@ def main():
             # write locally first and then delocalize using Hail Batch.
             job.command(
                 f'/home/aspera/.aspera/connect/bin/ascp '
-                f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh'
+                f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh '
                 f'-Tr -Q -l 100M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile}'
             )
