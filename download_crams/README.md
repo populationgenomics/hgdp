@@ -12,5 +12,5 @@ gcloud builds submit --tag=australia-southeast1-docker.pkg.dev/cpg-common/images
 Then run the Hail Batch pipeline that uses the image:
 
 ```sh
-analysis-runner --dataset hgdp --access-level test --output-dir cram/ebi --description "Copy HGDP CRAMs from EBI FTP" main.py
+analysis-runner --dataset hgdp --access-level test --output-dir cram/ebi --description "Copy HGDP CRAMs from EBI FTP" main.py --index_begin=0 --index_end=5
 ```
