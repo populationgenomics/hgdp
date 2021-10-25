@@ -59,7 +59,7 @@ def main(index_begin: int, index_end: int) -> None:
             output = output_path(path_components[-1])
             job.command(
                 f'if gsutil stat {output}; then '
-                f'echo {output} already exists; else '
+                f'echo "{output} already exists"; else '
                 f'/home/aspera/.aspera/connect/bin/ascp '
                 f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh '
                 f'-Tr -Q -l 1000M -P33001 -L- '
