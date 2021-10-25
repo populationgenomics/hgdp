@@ -45,7 +45,7 @@ def main():
             )
             batch.write_output(job.ofile, output_path(path_components[-1]))
             job.cpu(0.25)  # Network bandwidth is the bottleneck, not CPU.
-            job.memory('lowmem')
+            job.memory('standard')  # lowmem leads to OOMs.
             job.storage('50Gi')
 
             file_count += 1
