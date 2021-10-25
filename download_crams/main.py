@@ -53,17 +53,21 @@ def main(index_begin: int, index_end: int) -> None:
             job.image(DOCKER_IMAGE)
             job.command(GCLOUD_AUTH)
             # Unfortunately, piping to stdout doesn't seem to work with ascp, so we
-            # write locally first and then copy the file. We check the destination
-            # first, to make sure we're not doing redundant work. That's why we can't
-            # use Hail Batch's built-in file delocalization.
+            # write locally first and then copy the file.
             output = output_path(path_components[-1])
             job.command(
+                # Print output file size in the background.
+                f'(while true; du -sh {job.ofile}; sleep 60; done) & '
+                # We check the destination first, to make sure we're not doing redundant
+                # work. That's why we can't use Hail Batch's built-in file
+                # delocalization.
                 f'if gsutil stat {output}; then '
                 f'echo "{output} already exists"; else '
                 f'/home/aspera/.aspera/connect/bin/ascp '
                 f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh '
                 f'-Tr -Q -l 1000M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile} && '
+                # Transfer to GCS.
                 f'gsutil cp {job.ofile} {output}; fi'
             )
             job.cpu(0.25)  # Network bandwidth is the bottleneck, not CPU.
