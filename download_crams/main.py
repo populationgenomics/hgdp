@@ -41,9 +41,7 @@ def main():
                 f'-Tr -Q -l 100M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile}'
             )
-            batch.write_output(
-                job.ofile, output_path(f'cram/ebi/{path_components[-1]}')
-            )
+            batch.write_output(job.ofile, output_path(path_components[-1]))
             job.cpu(0.25)  # Network bandwidth is the bottleneck, not CPU.
 
             file_count += 1
