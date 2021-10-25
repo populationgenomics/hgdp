@@ -9,6 +9,7 @@ import hailtop.batch as hb
 from analysis_runner import output_path
 
 GCLOUD_AUTH = 'gcloud -q auth activate-service-account --key-file=/gsa-key/key.json'
+DOCKER_IMAGE = 'australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1'
 ACCESS_LEVEL = os.getenv('ACCESS_LEVEL')
 
 
@@ -29,15 +30,18 @@ def main():
             if not url.endswith('.cram'):
                 continue
 
-            job = batch.new_job(name=url)
-            job.image('ibmcom/aspera-cli:3.9')
-            job.command(GCLOUD_AUTH)
             path_components = url.split('/')
             path = '/'.join(path_components[3:])  # Remove the ftp://host/ prefix.
+            filename = path_components[-1]
+
+            job = batch.new_job(name=filename)
+            job.image(DOCKER_IMAGE)
+            job.command(GCLOUD_AUTH)
             # Unfortunately, piping to stdout doesn't seem to work with ascp, so we
             # write locally first and then delocalize using Hail Batch.
             job.command(
-                f'ascp -i /home/aspera/.aspera/cli/etc/asperaweb_id_dsa.openssh '
+                f'~/.aspera/connect/bin/ascp '
+                f'-i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh'
                 f'-Tr -Q -l 100M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile}'
             )
