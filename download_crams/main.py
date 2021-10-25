@@ -45,10 +45,11 @@ def main():
             )
             batch.write_output(job.ofile, output_path(path_components[-1]))
             job.cpu(0.25)  # Network bandwidth is the bottleneck, not CPU.
+            job.memory('lowmem')
             job.storage('50Gi')
 
             file_count += 1
-            if file_count > 5 and ACCESS_LEVEL == 'test':
+            if file_count >= 5 and ACCESS_LEVEL == 'test':
                 break  # Only copy a subset of CRAMs for 'test'.
 
     batch.run(wait=False)
