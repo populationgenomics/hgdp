@@ -11,6 +11,7 @@ from analysis_runner import output_path
 
 DOCKER_IMAGE = 'australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1'
 GCLOUD_AUTH = 'gcloud -q auth activate-service-account --key-file=/gsa-key/key.json'
+MAX_CONCURRENT = 4
 
 
 @click.command()
@@ -61,7 +62,7 @@ def main(index_begin: int, index_end: int) -> None:
                 f'echo {output} already exists; else '
                 f'/home/aspera/.aspera/connect/bin/ascp '
                 f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh '
-                f'-Tr -Q -l 100M -P33001 -L- '
+                f'-Tr -Q -l 1000M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile} && '
                 f'gsutil cp {job.ofile} {output}; fi'
             )
@@ -73,8 +74,8 @@ def main(index_begin: int, index_end: int) -> None:
 
     # The FTP server stops transfers if there are more than 4 concurrent connections, so
     # add artifical sequencing of jobs.
-    for index in range(index_begin + 4, index_end):
-        jobs[index].depends_on(jobs[index - 4])
+    for index in range(index_begin + MAX_CONCURRENT, index_end):
+        jobs[index].depends_on(jobs[index - MAX_CONCURRENT])
 
     batch.run(wait=False)
 
