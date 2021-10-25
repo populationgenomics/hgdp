@@ -70,8 +70,8 @@ def main(index_begin: int, index_end: int) -> None:
                 # Transfer to GCS.
                 f'gsutil cp {job.ofile} {output}; fi'
             )
-            job.cpu(0.25)  # Network bandwidth is the bottleneck, not CPU.
-            job.memory('standard')  # lowmem leads to OOMs.
+            job.cpu(1)  # Network bandwidth is the bottleneck, not CPU.
+            job.memory('lowmem')
             job.storage('50Gi')
 
             jobs.append(job)
