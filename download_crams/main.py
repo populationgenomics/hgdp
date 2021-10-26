@@ -57,7 +57,7 @@ def main(index_begin: int, index_end: int) -> None:
             output = output_path(path_components[-1])
             job.command(
                 # Print output file size in the background.
-                f'(while true; do sleep 60; du -sh {job.ofile}; echo; done) & '
+                f'(while true; do sleep 60; du -sh {job.ofile}*; echo; done) & '
                 # We check the destination first, to make sure we're not doing redundant
                 # work. That's why we can't use Hail Batch's built-in file
                 # delocalization.
