@@ -11,7 +11,6 @@ from analysis_runner import output_path
 
 DOCKER_IMAGE = 'australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1'
 GCLOUD_AUTH = 'gcloud -q auth activate-service-account --key-file=/gsa-key/key.json'
-MAX_CONCURRENT = 4
 
 
 @click.command()
@@ -76,10 +75,10 @@ def main(index_begin: int, index_end: int) -> None:
 
             jobs.append(job)
 
-    # The FTP server stops transfers if there are more than 4 concurrent connections, so
-    # add artifical sequencing of jobs.
-    for index in range(index_begin + MAX_CONCURRENT, index_end):
-        jobs[index].depends_on(jobs[index - MAX_CONCURRENT])
+    # Multiple concurrent downloads from the same IP don't seem to work well,
+    # therefore add job sequencing.
+    for index in range(1, index_end):
+        jobs[index].depends_on(jobs[index - 1])
 
     batch.run(wait=False)
 
