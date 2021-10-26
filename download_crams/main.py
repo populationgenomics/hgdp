@@ -65,7 +65,7 @@ def main(index_begin: int, index_end: int) -> None:
                 f'echo "{output} already exists"; else '
                 f'/home/aspera/.aspera/connect/bin/ascp '
                 f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh '
-                f'-Tr -Q -l 1000M -P33001 -L- '
+                f'-Tr -Q -l 100M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile} && '
                 # Transfer to GCS.
                 f'gsutil cp {job.ofile} {output}; fi'
