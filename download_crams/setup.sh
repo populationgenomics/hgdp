@@ -3,7 +3,7 @@
 set -ex
 
 sudo apt update
-sudo apt install -y gcsfuse stackdriver-agent python3-pip
+sudo apt install -y python3-pip
 
 pip3 install click
 
