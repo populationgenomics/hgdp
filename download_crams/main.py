@@ -11,7 +11,6 @@ from analysis_runner import output_path
 
 DOCKER_IMAGE = 'australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1'
 GCLOUD_AUTH = 'gcloud -q auth activate-service-account --key-file=/gsa-key/key.json'
-MAX_CONCURRENT = 4
 
 
 @click.command()
@@ -57,7 +56,7 @@ def main(index_begin: int, index_end: int) -> None:
             output = output_path(path_components[-1])
             job.command(
                 # Print output file size in the background.
-                f'(while true; du -sh {job.ofile}; sleep 60; done) & '
+                f'(while true; do sleep 60; du -sh {job.ofile}*; echo; done) & '
                 # We check the destination first, to make sure we're not doing redundant
                 # work. That's why we can't use Hail Batch's built-in file
                 # delocalization.
@@ -65,21 +64,21 @@ def main(index_begin: int, index_end: int) -> None:
                 f'echo "{output} already exists"; else '
                 f'/home/aspera/.aspera/connect/bin/ascp '
                 f'-i /home/aspera/.aspera/connect/etc/asperaweb_id_dsa.openssh '
-                f'-Tr -Q -l 1000M -P33001 -L- '
+                f'-Tr -l 1000M -P33001 -L- '
                 f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {job.ofile} && '
                 # Transfer to GCS.
                 f'gsutil cp {job.ofile} {output}; fi'
             )
             job.cpu(1)  # Network bandwidth is the bottleneck, not CPU.
-            job.memory('lowmem')
+            job.memory('standard')  # Use the standing worker cores.
             job.storage('50Gi')
 
             jobs.append(job)
 
-    # The FTP server stops transfers if there are more than 4 concurrent connections, so
-    # add artifical sequencing of jobs.
-    for index in range(index_begin + MAX_CONCURRENT, index_end):
-        jobs[index].depends_on(jobs[index - MAX_CONCURRENT])
+    # Multiple concurrent downloads from the same IP don't seem to work well,
+    # therefore add job sequencing.
+    for index in range(1, index_end):
+        jobs[index].depends_on(jobs[index - 1])
 
     batch.run(wait=False)
 
