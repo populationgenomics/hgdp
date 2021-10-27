@@ -10,8 +10,8 @@ curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 curl -sSO https://dl.google.com/cloudagents/add-monitoring-agent-repo.sh
 sudo bash add-monitoring-agent-repo.sh
 
-apt update
-apt install -y gcsfuse stackdriver-agent
+sudo apt update
+sudo apt install -y gcsfuse stackdriver-agent
 
 service stackdriver-agent start
 
