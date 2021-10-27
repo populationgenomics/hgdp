@@ -10,4 +10,4 @@ Then, on each VM:
 1. Open a `screen` session.
 1. `git clone https://github.com/populationgenomics/hgdp.git && cd hgdp/download_crams`
 1. Run `setup.sh` to install Aspera and set up `gcsfuse`.
-1. Run `main.py <index> <N>`, with `<index>` in [0, N-1] incrementing for each VM to parallelize the work through sharding.
+1. Run `main.py --shard_index=<index> --shard_count=<N>`, with `<index>` in [0, N-1] incrementing for each VM to parallelize the work through sharding.
