@@ -13,7 +13,7 @@ sudo bash add-monitoring-agent-repo.sh
 sudo apt update
 sudo apt install -y gcsfuse stackdriver-agent
 
-service stackdriver-agent start
+sudo service stackdriver-agent start
 
 curl https://d3gcli72yxqn2z.cloudfront.net/connect_latest/v4/bin/ibm-aspera-connect_4.1.0.46-linux_x86_64.tar.gz | tar xz
 bash ibm-aspera-connect_4.1.0.46-linux_x86_64.sh
