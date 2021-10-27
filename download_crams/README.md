@@ -1,18 +1,7 @@
 # Download HGDP CRAMs from the EBI FTP server
 
-The FTP server access [requires the Aspera software](https://www.internationalgenome.org/category/ftp/). Unfortunately, the `ibmcom/aspera-cli` Docker image isn't compatible with Hail Batch's file localization paths.
+The FTP server access [requires the Aspera software](https://www.internationalgenome.org/category/ftp/). Unfortunately, within a Docker container, the downloads stall after a few hundred MB. For some reason this doesn't happen when running `ascp` directly in a VM.
 
-First, build the Docker image:
-
-```sh
-gcloud config set project cpg-common
-gcloud builds submit --tag=australia-southeast1-docker.pkg.dev/cpg-common/images/aspera:v1 .
-```
-
-Then run the Hail Batch pipeline that uses the image:
-
-```sh
-analysis-runner --dataset hgdp --access-level test --output-dir cram/ebi --description "Copy HGDP CRAMs from EBI FTP" main.py --index_begin=0 --index_end=8
-```
-
-In order to restrict the bandwidth requirements on the FTP server, the `index_begin` and `index_end` parameters can be used to only download a particular batch of samples at a time.
+1. Bring up a few (e.g. N=5) `n1-standard-1` VMs.
+1. On each VM, run `setup.sh` to install Aspera and set up `gcsfuse`.
+1. On each VM, run `main.py <index> <N>`, with `<index>` in [0, N-1] incrementing for each VM to parallelize the work through sharding.
