@@ -32,24 +32,18 @@ def main(shard_index: int, shard_count: int) -> None:
             filename = path_components[-1]
 
             home = os.getenv('HOME')
-            output = f'{home}/data/cram/ebi/{filename}'
+            output = f'{home}/data/{filename}'
 
             print('Downloading {filename}')
 
             subprocess.run(
-                [
-                    f'{home}/.aspera/connect/bin/ascp',
-                    '-i',
-                    f'{home}/.aspera/connect/etc/asperaweb_id_dsa.openssh',
-                    '-T',
-                    '-l',
-                    '300M',
-                    '-P33001',
-                    '-k1',
-                    '-L-',
-                    f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path}',
-                    f'{output}',
-                ],
+                f'{home}/.aspera/connect/bin/ascp '
+                f'-i {home}/.aspera/connect/etc/asperaweb_id_dsa.openssh '
+                f'-T -l 300M -P33001 -k1 -L- '
+                f'fasp-g1k@fasp.1000genomes.ebi.ac.uk:{path} {output} && '
+                f'gsutil cp {output} gs://cpg-hgdp-main/cram/ebi/{filename} && '
+                f'rm {output}',
+                shell=True,
                 check=True,
             )
 
