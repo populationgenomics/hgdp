@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from cpg_utils.workflows.batch import get_batch
 
 b = get_batch('Check HGDP storage')
